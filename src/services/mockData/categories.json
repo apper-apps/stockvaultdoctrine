@@ -1,0 +1,62 @@
+[
+  {
+    "Id": 1,
+    "name": "Electronics",
+    "description": "Electronic devices and accessories",
+    "parentId": null
+  },
+  {
+    "Id": 2,
+    "name": "Kitchen",
+    "description": "Kitchen appliances and tools",
+    "parentId": null
+  },
+  {
+    "Id": 3,
+    "name": "Furniture",
+    "description": "Home and office furniture",
+    "parentId": null
+  },
+  {
+    "Id": 4,
+    "name": "Audio",
+    "description": "Audio equipment and accessories",
+    "parentId": 1
+  },
+  {
+    "Id": 5,
+    "name": "Mobile",
+    "description": "Mobile devices and accessories",
+    "parentId": 1
+  },
+  {
+    "Id": 6,
+    "name": "Computer",
+    "description": "Computer hardware and accessories",
+    "parentId": 1
+  },
+  {
+    "Id": 7,
+    "name": "Small Appliances",
+    "description": "Small kitchen appliances",
+    "parentId": 2
+  },
+  {
+    "Id": 8,
+    "name": "Cookware",
+    "description": "Pots, pans, and cooking tools",
+    "parentId": 2
+  },
+  {
+    "Id": 9,
+    "name": "Office",
+    "description": "Office furniture and equipment",
+    "parentId": 3
+  },
+  {
+    "Id": 10,
+    "name": "Living Room",
+    "description": "Living room furniture",
+    "parentId": 3
+  }
+]
