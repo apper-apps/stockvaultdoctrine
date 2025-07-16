@@ -1,4 +1,6 @@
 import { toast } from "react-toastify";
+import React from "react";
+import Error from "@/components/ui/Error";
 
 class CategoriesService {
   constructor() {
@@ -14,7 +16,7 @@ class CategoriesService {
     });
   }
 
-  async getAll() {
+async getAll() {
     try {
       const params = {
         fields: [
@@ -41,7 +43,7 @@ class CategoriesService {
         Id: item.Id,
         name: item.Name,
         description: item.description,
-        parentId: item.parent_id?.Id || item.parent_id
+        parentId: item.parent_id?.Id ? parseInt(item.parent_id.Id) : (item.parent_id ? parseInt(item.parent_id) : null)
       }));
     } catch (error) {
       console.error("Error fetching categories:", error);
@@ -49,7 +51,7 @@ class CategoriesService {
     }
   }
 
-  async getById(id) {
+async getById(id) {
     try {
       const params = {
         fields: [
@@ -76,7 +78,7 @@ class CategoriesService {
         Id: response.data.Id,
         name: response.data.Name,
         description: response.data.description,
-        parentId: response.data.parent_id?.Id || response.data.parent_id
+        parentId: response.data.parent_id?.Id ? parseInt(response.data.parent_id.Id) : (response.data.parent_id ? parseInt(response.data.parent_id) : null)
       };
     } catch (error) {
       console.error(`Error fetching category with ID ${id}:`, error);
@@ -84,13 +86,13 @@ class CategoriesService {
     }
   }
 
-  async create(categoryData) {
+async create(categoryData) {
     try {
       const params = {
         records: [{
           Name: categoryData.name,
           description: categoryData.description,
-          parent_id: categoryData.parentId || null
+          parent_id: categoryData.parentId ? parseInt(categoryData.parentId) : null
         }]
       };
 
@@ -123,7 +125,7 @@ class CategoriesService {
             Id: created.Id,
             name: created.Name,
             description: created.description,
-            parentId: created.parent_id?.Id || created.parent_id
+            parentId: created.parent_id?.Id ? parseInt(created.parent_id.Id) : (created.parent_id ? parseInt(created.parent_id) : null)
           };
         }
       }
@@ -135,14 +137,14 @@ class CategoriesService {
     }
   }
 
-  async update(id, categoryData) {
+async update(id, categoryData) {
     try {
       const params = {
         records: [{
           Id: id,
           Name: categoryData.name,
           description: categoryData.description,
-          parent_id: categoryData.parentId || null
+          parent_id: categoryData.parentId ? parseInt(categoryData.parentId) : null
         }]
       };
 
@@ -175,7 +177,7 @@ class CategoriesService {
             Id: updated.Id,
             name: updated.Name,
             description: updated.description,
-            parentId: updated.parent_id?.Id || updated.parent_id
+            parentId: updated.parent_id?.Id ? parseInt(updated.parent_id.Id) : (updated.parent_id ? parseInt(updated.parent_id) : null)
           };
         }
       }
