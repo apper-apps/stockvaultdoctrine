@@ -13,6 +13,7 @@ import Layout from "@/components/pages/Layout";
 import Dashboard from "@/components/pages/Dashboard";
 import Products from "@/components/pages/Products";
 import Categories from "@/components/pages/Categories";
+import Suppliers from "@/components/pages/Suppliers";
 import Alerts from "@/components/pages/Alerts";
 
 // Create auth context
@@ -127,10 +128,11 @@ function App() {
         <Route path="/error" element={<ErrorPage />} />
         <Route path="/prompt-password/:appId/:emailAddress/:provider" element={<PromptPassword />} />
         <Route path="/reset-password/:appId/:fields" element={<ResetPassword />} />
-        <Route path="/" element={<Layout />}>
+<Route path="/" element={<Layout />}>
           <Route index element={<Dashboard />} />
           <Route path="products" element={<Products />} />
           <Route path="categories" element={<Categories />} />
+          <Route path="suppliers" element={<Suppliers />} />
           <Route path="alerts" element={<Alerts />} />
         </Route>
       </Routes>

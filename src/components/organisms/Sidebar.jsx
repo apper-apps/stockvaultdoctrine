@@ -12,10 +12,11 @@ const Sidebar = ({ isOpen, onClose }) => {
   const lowStockCount = useLowStockCount();
   const { logout } = useContext(AuthContext);
 
-  const navigation = [
+const navigation = [
     { name: "Dashboard", href: "/", icon: "LayoutDashboard" },
     { name: "Products", href: "/products", icon: "Package" },
     { name: "Categories", href: "/categories", icon: "FolderOpen" },
+    { name: "Suppliers", href: "/suppliers", icon: "Factory" },
     { name: "Alerts", href: "/alerts", icon: "AlertTriangle", badge: lowStockCount },
   ];
 
