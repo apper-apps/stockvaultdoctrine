@@ -6,7 +6,7 @@ import Badge from "@/components/atoms/Badge";
 import ActionButton from "@/components/molecules/ActionButton";
 import StockLevelBar from "@/components/molecules/StockLevelBar";
 
-const ProductTable = ({ products, onEdit, onDelete, onStockAdjust }) => {
+const ProductTable = ({ products, onEdit, onDelete, onStockAdjust, filterCount = 0 }) => {
   const getStockStatus = (quantity, minStock) => {
     if (quantity <= minStock) return { variant: "error", label: "Low Stock" };
     if (quantity <= minStock * 2) return { variant: "warning", label: "Medium Stock" };
@@ -14,7 +14,19 @@ const ProductTable = ({ products, onEdit, onDelete, onStockAdjust }) => {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden">
+<div className="bg-white rounded-lg shadow-md overflow-hidden">
+      {filterCount > 0 && (
+        <div className="px-6 py-2 bg-primary-50 border-b border-primary-200">
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-primary-700">
+              Showing {products.length} filtered results
+            </span>
+            <Badge variant="primary" className="text-xs">
+              {filterCount} filters active
+            </Badge>
+          </div>
+        </div>
+      )}
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-secondary-200">
           <thead className="bg-secondary-50">

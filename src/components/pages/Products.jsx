@@ -5,6 +5,7 @@ import Header from "@/components/organisms/Header";
 import ProductTable from "@/components/organisms/ProductTable";
 import ProductModal from "@/components/organisms/ProductModal";
 import StockAdjustModal from "@/components/organisms/StockAdjustModal";
+import AdvancedFilterPanel from "@/components/organisms/AdvancedFilterPanel";
 import Loading from "@/components/ui/Loading";
 import Error from "@/components/ui/Error";
 import Empty from "@/components/ui/Empty";
@@ -20,9 +21,15 @@ const Products = () => {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState("");
-  const [stockFilter, setStockFilter] = useState("");
+  const [filters, setFilters] = useState({
+    search: "",
+    category: "",
+    stockLevel: "",
+    minPrice: "",
+    maxPrice: "",
+    minStock: "",
+    maxStock: ""
+  });
   const [showProductModal, setShowProductModal] = useState(false);
   const [showStockModal, setShowStockModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -124,17 +131,64 @@ const Products = () => {
       toast.error("Failed to adjust stock");
       throw error;
     }
+};
+
+  const handleFiltersChange = (newFilters) => {
+    setFilters(newFilters);
+  };
+
+  const handleClearFilters = () => {
+    setFilters({
+      search: "",
+      category: "",
+      stockLevel: "",
+      minPrice: "",
+      maxPrice: "",
+      minStock: "",
+      maxStock: ""
+    });
+  };
+
+  const getActiveFilterCount = () => {
+    return Object.values(filters).filter(value => value && value.toString().trim()).length;
   };
 
   const filteredProducts = products.filter(product => {
-    const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         product.sku.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = !categoryFilter || product.category === categoryFilter;
-    const matchesStock = !stockFilter || 
-                        (stockFilter === "low" && product.quantity <= product.minStock) ||
-                        (stockFilter === "good" && product.quantity > product.minStock);
+    // Search filter (name or SKU)
+    const matchesSearch = !filters.search || 
+      product.name.toLowerCase().includes(filters.search.toLowerCase()) ||
+      product.sku.toLowerCase().includes(filters.search.toLowerCase());
     
-    return matchesSearch && matchesCategory && matchesStock;
+    // Category filter
+    const matchesCategory = !filters.category || product.category === filters.category;
+    
+    // Stock level filter
+    const matchesStockLevel = !filters.stockLevel || (() => {
+      const stockRatio = product.quantity / product.minStock;
+      switch (filters.stockLevel) {
+        case "low":
+          return product.quantity <= product.minStock;
+        case "medium":
+          return product.quantity > product.minStock && product.quantity <= product.minStock * 2;
+        case "good":
+          return product.quantity > product.minStock * 2;
+        case "out":
+          return product.quantity === 0;
+        default:
+          return true;
+      }
+    })();
+    
+    // Price range filters
+    const matchesMinPrice = !filters.minPrice || product.price >= parseFloat(filters.minPrice);
+    const matchesMaxPrice = !filters.maxPrice || product.price <= parseFloat(filters.maxPrice);
+    
+    // Stock quantity range filters
+    const matchesMinStock = !filters.minStock || product.quantity >= parseInt(filters.minStock);
+    const matchesMaxStock = !filters.maxStock || product.quantity <= parseInt(filters.maxStock);
+    
+    return matchesSearch && matchesCategory && matchesStockLevel && 
+           matchesMinPrice && matchesMaxPrice && matchesMinStock && matchesMaxStock;
   });
 
   if (loading) {
@@ -158,12 +212,9 @@ const Products = () => {
       transition={{ duration: 0.3 }}
       className="space-y-6"
     >
-      <Header
+<Header
         title="Products"
         subtitle={`Manage your inventory of ${products.length} products`}
-        searchValue={searchTerm}
-        onSearchChange={(e) => setSearchTerm(e.target.value)}
-        searchPlaceholder="Search products..."
         actions={
           <Button onClick={handleAddProduct}>
             <ApperIcon name="Plus" className="w-4 h-4 mr-2" />
@@ -172,48 +223,30 @@ const Products = () => {
         }
       />
 
-      {/* Filters */}
-      <div className="bg-white rounded-lg shadow-md p-4">
-        <div className="flex flex-wrap gap-4">
-          <div className="flex-1 min-w-48">
-            <Select
-              value={categoryFilter}
-              onChange={(e) => setCategoryFilter(e.target.value)}
-            >
-              <option value="">All Categories</option>
-              {categories.map(category => (
-                <option key={category.Id} value={category.name}>
-                  {category.name}
-                </option>
-              ))}
-            </Select>
-          </div>
-          <div className="flex-1 min-w-48">
-            <Select
-              value={stockFilter}
-              onChange={(e) => setStockFilter(e.target.value)}
-            >
-              <option value="">All Stock Levels</option>
-              <option value="low">Low Stock</option>
-              <option value="good">Good Stock</option>
-            </Select>
-          </div>
-        </div>
-      </div>
+{/* Advanced Filters */}
+      <AdvancedFilterPanel
+        filters={filters}
+        onFiltersChange={handleFiltersChange}
+        categories={categories}
+        totalProducts={products.length}
+        filteredCount={filteredProducts.length}
+        onClear={handleClearFilters}
+      />
 
       {/* Products Table */}
-      {filteredProducts.length > 0 ? (
+{filteredProducts.length > 0 ? (
         <ProductTable
           products={filteredProducts}
           onEdit={handleEditProduct}
           onDelete={handleDeleteProduct}
           onStockAdjust={handleStockAdjust}
+          filterCount={getActiveFilterCount()}
         />
       ) : (
-        <Empty
+<Empty
           icon="Package"
           title="No products found"
-          message={searchTerm || categoryFilter || stockFilter 
+          message={getActiveFilterCount() > 0
             ? "No products match your current filters. Try adjusting your search criteria." 
             : "Start building your inventory by adding your first product."}
           actionLabel="Add Product"
