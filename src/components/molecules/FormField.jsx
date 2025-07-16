@@ -19,9 +19,9 @@ const FormField = ({
       return children;
     }
 
-    switch (type) {
+switch (type) {
       case "select":
-        return <Select error={!!error} {...props} />;
+        return <Select error={!!error} {...props}>{children}</Select>;
       case "textarea":
         return <Textarea error={!!error} {...props} />;
       default:
