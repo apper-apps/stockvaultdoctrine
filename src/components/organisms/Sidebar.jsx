@@ -1,14 +1,16 @@
-import React from "react";
+import React, { useContext } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { cn } from "@/utils/cn";
 import ApperIcon from "@/components/ApperIcon";
 import AlertBadge from "@/components/molecules/AlertBadge";
 import { useLowStockCount } from "@/hooks/useLowStockCount";
-
+import { AuthContext } from "../../App";
+import Button from "@/components/atoms/Button";
 const Sidebar = ({ isOpen, onClose }) => {
   const location = useLocation();
   const lowStockCount = useLowStockCount();
+  const { logout } = useContext(AuthContext);
 
   const navigation = [
     { name: "Dashboard", href: "/", icon: "LayoutDashboard" },
@@ -16,6 +18,14 @@ const Sidebar = ({ isOpen, onClose }) => {
     { name: "Categories", href: "/categories", icon: "FolderOpen" },
     { name: "Alerts", href: "/alerts", icon: "AlertTriangle", badge: lowStockCount },
   ];
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
 
   const NavItem = ({ item }) => (
     <NavLink
@@ -52,11 +62,21 @@ const Sidebar = ({ isOpen, onClose }) => {
             </span>
           </div>
         </div>
-        <nav className="flex-1 px-4 py-6 space-y-2">
+<nav className="flex-1 px-4 py-6 space-y-2">
           {navigation.map((item) => (
             <NavItem key={item.name} item={item} />
           ))}
         </nav>
+        <div className="px-4 py-4 border-t border-secondary-200">
+          <Button
+            variant="ghost"
+            className="w-full justify-start text-secondary-700 hover:text-secondary-900 hover:bg-secondary-100"
+            onClick={handleLogout}
+          >
+            <ApperIcon name="LogOut" className="w-5 h-5 mr-3" />
+            Logout
+          </Button>
+        </div>
       </div>
     </div>
   );
@@ -96,11 +116,21 @@ const Sidebar = ({ isOpen, onClose }) => {
               <ApperIcon name="X" className="w-5 h-5" />
             </button>
           </div>
-          <nav className="flex-1 px-4 py-6 space-y-2">
+<nav className="flex-1 px-4 py-6 space-y-2">
             {navigation.map((item) => (
               <NavItem key={item.name} item={item} />
             ))}
           </nav>
+          <div className="px-4 py-4 border-t border-secondary-200">
+            <Button
+              variant="ghost"
+              className="w-full justify-start text-secondary-700 hover:text-secondary-900 hover:bg-secondary-100"
+              onClick={handleLogout}
+            >
+              <ApperIcon name="LogOut" className="w-5 h-5 mr-3" />
+              Logout
+            </Button>
+          </div>
         </div>
       </motion.div>
     </>
