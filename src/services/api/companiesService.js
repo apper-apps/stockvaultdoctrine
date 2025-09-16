@@ -1,14 +1,10 @@
-import { toast } from 'react-toastify';
+import { toast } from "react-toastify";
 
 // Initialize ApperClient
 const { ApperClient } = window.ApperSDK;
-const apperClient = new ApperClient({
-  apperProjectId: import.meta.env.VITE_APPER_PROJECT_ID,
-  apperPublicKey: import.meta.env.VITE_APPER_PUBLIC_KEY
-});
+const apperClient = new ApperClient();
 
-const TABLE_NAME = 'company_c';
-
+const TABLE_NAME = 'company_c'; // Using the actual table name from database schema
 // Helper function for delays
 function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
