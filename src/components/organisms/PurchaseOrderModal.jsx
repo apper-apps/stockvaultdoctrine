@@ -99,14 +99,14 @@ const PurchaseOrderModal = ({
     }
   };
 
-  const validateForm = () => {
+const validateForm = () => {
     const newErrors = {};
     
     if (!formData.Name.trim()) newErrors.Name = "Name is required";
     if (!formData.purchase_order_number_c.trim()) newErrors.purchase_order_number_c = "Purchase order number is required";
     if (!formData.supplier_c) newErrors.supplier_c = "Supplier is required";
     if (!formData.order_date_c) newErrors.order_date_c = "Order date is required";
-    
+    if (lineItems.length === 0) newErrors.lineItems = "At least one line item is required";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -151,7 +151,7 @@ const PurchaseOrderModal = ({
     }
   };
 
-  const handleItemSave = (itemData) => {
+const handleItemSave = (itemData) => {
     if (editingItem) {
       setLineItems(lineItems.map(item => item === editingItem ? itemData : item));
     } else {
@@ -159,6 +159,11 @@ const PurchaseOrderModal = ({
     }
     setShowItemForm(false);
     setEditingItem(null);
+    
+    // Clear line items error when items are added
+    if (errors.lineItems) {
+      setErrors(prev => ({ ...prev, lineItems: null }));
+    }
   };
 
   const calculateTotals = () => {
@@ -311,7 +316,7 @@ const PurchaseOrderModal = ({
                   rows={3}
                 />
 
-                {/* Line Items Section */}
+{/* Line Items Section */}
                 <div className="border-t border-secondary-200 pt-6">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-lg font-medium text-secondary-900">Line Items</h3>
@@ -324,6 +329,15 @@ const PurchaseOrderModal = ({
                       Add Item
                     </Button>
                   </div>
+                  
+                  {errors.lineItems && (
+                    <div className="mb-4 p-3 bg-error-50 border border-error-200 rounded-lg">
+                      <div className="flex items-center">
+                        <ApperIcon name="AlertCircle" className="w-4 h-4 text-error-500 mr-2" />
+                        <span className="text-sm text-error-700">{errors.lineItems}</span>
+                      </div>
+                    </div>
+                  )}
 
                   {lineItems.length > 0 ? (
                     <div className="space-y-2">
