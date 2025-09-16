@@ -16,6 +16,7 @@ import Categories from "@/components/pages/Categories";
 import Companies from "@/components/pages/Companies";
 import Suppliers from "@/components/pages/Suppliers";
 import Alerts from "@/components/pages/Alerts";
+import PurchaseOrders from "@/components/pages/PurchaseOrders";
 
 // Create auth context
 export const AuthContext = createContext(null);
@@ -135,6 +136,7 @@ function App() {
           <Route path="categories" element={<Categories />} />
           <Route path="companies" element={<Companies />} />
           <Route path="suppliers" element={<Suppliers />} />
+          <Route path="purchase-orders" element={<PurchaseOrders />} />
           <Route path="alerts" element={<Alerts />} />
         </Route>
       </Routes>

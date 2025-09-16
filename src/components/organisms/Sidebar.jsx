@@ -18,6 +18,7 @@ const navigation = [
     { name: "Categories", href: "/categories", icon: "FolderOpen" },
     { name: "Companies", href: "/companies", icon: "Building" },
     { name: "Suppliers", href: "/suppliers", icon: "Factory" },
+    { name: "Purchase Orders", href: "/purchase-orders", icon: "Receipt" },
     { name: "Alerts", href: "/alerts", icon: "AlertTriangle", badge: lowStockCount },
   ];
 
