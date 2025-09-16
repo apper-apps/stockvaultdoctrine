@@ -63,7 +63,7 @@ const CompanyModal = ({
     }
   }, [isOpen, company, mode]);
 
-  const loadSuppliers = async () => {
+const loadSuppliers = async () => {
     setLoadingSuppliers(true);
     try {
       const result = await suppliersService.getAll();
