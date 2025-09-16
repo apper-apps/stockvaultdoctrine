@@ -13,6 +13,7 @@ import Layout from "@/components/pages/Layout";
 import Dashboard from "@/components/pages/Dashboard";
 import Products from "@/components/pages/Products";
 import Categories from "@/components/pages/Categories";
+import Companies from "@/components/pages/Companies";
 import Suppliers from "@/components/pages/Suppliers";
 import Alerts from "@/components/pages/Alerts";
 
@@ -130,8 +131,9 @@ function App() {
         <Route path="/reset-password/:appId/:fields" element={<ResetPassword />} />
 <Route path="/" element={<Layout />}>
           <Route index element={<Dashboard />} />
-          <Route path="products" element={<Products />} />
+<Route path="products" element={<Products />} />
           <Route path="categories" element={<Categories />} />
+          <Route path="companies" element={<Companies />} />
           <Route path="suppliers" element={<Suppliers />} />
           <Route path="alerts" element={<Alerts />} />
         </Route>

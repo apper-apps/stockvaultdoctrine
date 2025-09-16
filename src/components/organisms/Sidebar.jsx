@@ -16,6 +16,7 @@ const navigation = [
     { name: "Dashboard", href: "/", icon: "LayoutDashboard" },
     { name: "Products", href: "/products", icon: "Package" },
     { name: "Categories", href: "/categories", icon: "FolderOpen" },
+    { name: "Companies", href: "/companies", icon: "Building" },
     { name: "Suppliers", href: "/suppliers", icon: "Factory" },
     { name: "Alerts", href: "/alerts", icon: "AlertTriangle", badge: lowStockCount },
   ];
