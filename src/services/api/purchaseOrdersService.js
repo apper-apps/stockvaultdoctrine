@@ -14,7 +14,7 @@ export const purchaseOrdersService = {
       });
       
       const params = {
-        fields: [
+fields: [
           { field: { Name: "Name" } },
           { field: { Name: "Tags" } },
           { field: { Name: "purchase_order_number_c" } },
@@ -25,6 +25,7 @@ export const purchaseOrdersService = {
           { field: { Name: "reference_number_c" } },
           { field: { Name: "payment_terms_c" } },
           { field: { Name: "currency_c" } },
+          { field: { Name: "email_sent_c" } },
           { field: { Name: "CreatedOn" } },
           { field: { Name: "CreatedBy" } },
           { field: { Name: "ModifiedOn" } },
@@ -92,7 +93,7 @@ export const purchaseOrdersService = {
         apperPublicKey: import.meta.env.VITE_APPER_PUBLIC_KEY
       });
       
-      const params = {
+const params = {
         fields: [
           { field: { Name: "Name" } },
           { field: { Name: "Tags" } },
@@ -104,6 +105,7 @@ export const purchaseOrdersService = {
           { field: { Name: "reference_number_c" } },
           { field: { Name: "payment_terms_c" } },
           { field: { Name: "currency_c" } },
+          { field: { Name: "email_sent_c" } },
           { field: { Name: "CreatedOn" } },
           { field: { Name: "CreatedBy" } },
           { field: { Name: "ModifiedOn" } },

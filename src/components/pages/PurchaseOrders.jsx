@@ -1,16 +1,17 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { toast } from "react-toastify";
-import Header from "@/components/organisms/Header";
-import PurchaseOrdersTable from "@/components/organisms/PurchaseOrdersTable";
-import PurchaseOrderModal from "@/components/organisms/PurchaseOrderModal";
-import Loading from "@/components/ui/Loading";
+import { purchaseOrdersService } from "@/services/api/purchaseOrdersService";
+import ApperIcon from "@/components/ApperIcon";
 import Error from "@/components/ui/Error";
 import Empty from "@/components/ui/Empty";
-import Button from "@/components/atoms/Button";
+import Loading from "@/components/ui/Loading";
+import PurchaseOrdersTable from "@/components/organisms/PurchaseOrdersTable";
+import PurchaseOrderModal from "@/components/organisms/PurchaseOrderModal";
+import Header from "@/components/organisms/Header";
 import Select from "@/components/atoms/Select";
-import ApperIcon from "@/components/ApperIcon";
-import { purchaseOrdersService } from "@/services/api/purchaseOrdersService";
+import Button from "@/components/atoms/Button";
+import { create, getAll, update } from "@/services/api/companiesService";
 
 const PurchaseOrders = () => {
   const [purchaseOrders, setPurchaseOrders] = useState([]);
@@ -81,9 +82,34 @@ const PurchaseOrders = () => {
         ));
         toast.success("Purchase order updated successfully");
       } else {
-        savedPurchaseOrder = await purchaseOrdersService.create(purchaseOrderData);
+savedPurchaseOrder = await purchaseOrdersService.create(purchaseOrderData);
         setPurchaseOrders([savedPurchaseOrder, ...purchaseOrders]);
         toast.success("Purchase order created successfully");
+
+// Send email notification via edge function
+        try {
+          const { ApperClient } = window.ApperSDK;
+          const apperClient = new ApperClient({
+            apperProjectId: import.meta.env.VITE_APPER_PROJECT_ID,
+            apperPublicKey: import.meta.env.VITE_APPER_PUBLIC_KEY
+          });
+
+          const emailResponse = await apperClient.functions.invoke(import.meta.env.VITE_SEND_PURCHASE_ORDER_EMAIL, {
+            body: JSON.stringify(savedPurchaseOrder),
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          });
+          if (emailResponse.success === false) {
+            console.info(`apper_info: Got an error in this function: ${import.meta.env.VITE_SEND_PURCHASE_ORDER_EMAIL}. The response body is: ${JSON.stringify(emailResponse)}.`);
+            toast.error('Purchase order created but email notification failed');
+          } else {
+            toast.success('Email sent successfully to supplier');
+          }
+        } catch (error) {
+          console.info(`apper_info: Got this error in this function: ${import.meta.env.VITE_SEND_PURCHASE_ORDER_EMAIL}. The error is: ${error.message}`);
+          toast.error('Purchase order created but failed to send email notification');
+        }
       }
     } catch (error) {
       toast.error("Failed to save purchase order");
