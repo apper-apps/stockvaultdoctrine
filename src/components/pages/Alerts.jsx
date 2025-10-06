@@ -1,31 +1,88 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { toast } from "react-toastify";
-import Header from "@/components/organisms/Header";
-import StockAdjustModal from "@/components/organisms/StockAdjustModal";
-import Loading from "@/components/ui/Loading";
-import Error from "@/components/ui/Error";
-import Empty from "@/components/ui/Empty";
-import Card from "@/components/atoms/Card";
-import Badge from "@/components/atoms/Badge";
-import Button from "@/components/atoms/Button";
-import ApperIcon from "@/components/ApperIcon";
-import StockLevelBar from "@/components/molecules/StockLevelBar";
 import { productsService } from "@/services/api/productsService";
 import { transactionsService } from "@/services/api/transactionsService";
+import ApperIcon from "@/components/ApperIcon";
+import StockLevelBar from "@/components/molecules/StockLevelBar";
+import Error from "@/components/ui/Error";
+import Empty from "@/components/ui/Empty";
+import Loading from "@/components/ui/Loading";
+import StockAdjustModal from "@/components/organisms/StockAdjustModal";
+import Header from "@/components/organisms/Header";
+import Badge from "@/components/atoms/Badge";
+import Card from "@/components/atoms/Card";
+import Button from "@/components/atoms/Button";
+import { create, getAll, update } from "@/services/api/companiesService";
 
 const Alerts = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [showStockModal, setShowStockModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [showAdjustModal, setShowAdjustModal] = useState(false);
+  const [showStockModal, setShowStockModal] = useState(false);
+  const [emailSending, setEmailSending] = useState(false);
 
   useEffect(() => {
     loadProducts();
   }, []);
 
-  const loadProducts = async () => {
+  const handleSendAlert = async () => {
+    try {
+      setEmailSending(true);
+      
+      // Filter low stock products
+      const lowStockProducts = products.filter(p => p.quantity <= p.minStock);
+      
+      if (lowStockProducts.length === 0) {
+        toast.info("No low stock products to alert about");
+        setEmailSending(false);
+        return;
+      }
+
+      // Initialize ApperClient
+      const { ApperClient } = window.ApperSDK;
+      const apperClient = new ApperClient({
+        apperProjectId: import.meta.env.VITE_APPER_PROJECT_ID,
+        apperPublicKey: import.meta.env.VITE_APPER_PUBLIC_KEY
+      });
+
+      // Prepare products data for email
+      const productsForEmail = lowStockProducts.map(p => ({
+        name: p.name,
+        sku: p.sku,
+        quantity: p.quantity,
+        minStock: p.minStock,
+        category: p.category
+      }));
+
+      // Invoke Edge function
+      const result = await apperClient.functions.invoke(
+        import.meta.env.VITE_SEND_LOW_STOCK_ALERT,
+        {
+          body: JSON.stringify({ products: productsForEmail }),
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      if (result.success === false) {
+        console.info(`apper_info: Got an error in this function: ${import.meta.env.VITE_SEND_LOW_STOCK_ALERT}. The response body is: ${JSON.stringify(result)}.`);
+        toast.error(result.message || "Failed to send alert email");
+      } else {
+        toast.success(result.message || "Low stock alert email sent successfully");
+      }
+    } catch (error) {
+      console.info(`apper_info: Got this error in this function: ${import.meta.env.VITE_SEND_LOW_STOCK_ALERT}. The error is: ${error.message}`);
+      toast.error("Failed to send alert email: " + error.message);
+    } finally {
+      setEmailSending(false);
+    }
+  };
+
+const loadProducts = async () => {
     try {
       setLoading(true);
       setError(null);
@@ -39,7 +96,7 @@ const Alerts = () => {
     }
   };
 
-  const handleStockAdjust = (product) => {
+const handleStockAdjust = (product) => {
     setSelectedProduct(product);
     setShowStockModal(true);
   };
@@ -72,7 +129,7 @@ const Alerts = () => {
       toast.error("Failed to adjust stock");
       throw error;
     }
-  };
+};
 
   // Filter products with low stock
   const lowStockProducts = products.filter(product => product.quantity <= product.minStock);
@@ -91,20 +148,43 @@ const Alerts = () => {
       />
     );
   }
+return (
+    <div className="flex flex-col h-screen bg-gradient-to-br from-secondary-50 to-secondary-100">
+      <Header />
+      
+      <div className="flex-1 overflow-auto p-6">
+        <div className="max-w-7xl mx-auto">
+          {/* Header Section */}
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h1 className="text-3xl font-bold text-secondary-900 mb-2">
+                Stock Alerts
+              </h1>
+              <p className="text-secondary-600">
+                Monitor and manage low stock levels
+              </p>
+            </div>
+            <Button
+              onClick={handleSendAlert}
+              disabled={emailSending || lowStockProducts.length === 0}
+              variant="primary"
+              className="flex items-center gap-2"
+            >
+              {emailSending ? (
+                <>
+                  <ApperIcon name="Loader2" size={16} className="animate-spin" />
+                  Sending...
+                </>
+              ) : (
+                <>
+                  <ApperIcon name="Mail" size={16} />
+                  Send Alert Email
+                </>
+              )}
+            </Button>
+          </div>
 
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.3 }}
-      className="space-y-6"
-    >
-      <Header
-        title="Stock Alerts"
-        subtitle={`${lowStockProducts.length} items need attention`}
-      />
-
-      {/* Alert Summary */}
+          {/* Alert Summary */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card className="p-6">
           <div className="flex items-center justify-between">
@@ -215,15 +295,16 @@ const Alerts = () => {
           onAction={() => window.location.href = "/products"}
         />
       )}
-
-      {/* Stock Adjust Modal */}
-      <StockAdjustModal
-        isOpen={showStockModal}
-        onClose={() => setShowStockModal(false)}
-        product={selectedProduct}
-        onSave={handleStockAdjustSave}
-      />
-    </motion.div>
+{/* Stock Adjust Modal */}
+          <StockAdjustModal
+            isOpen={showStockModal}
+            onClose={() => setShowStockModal(false)}
+            product={selectedProduct}
+            onSave={handleStockAdjustSave}
+          />
+        </div>
+      </div>
+    </div>
   );
 };
 
