@@ -171,7 +171,7 @@ class ProductsService {
     }
   }
 
-  async update(id, productData) {
+async update(id, productData) {
     try {
       const params = {
         records: [{
@@ -193,6 +193,12 @@ class ProductsService {
         console.error(response.message);
         toast.error(response.message);
         throw new Error(response.message);
+      }
+
+      if (!response.results || response.results.length === 0) {
+        console.error(`Failed to update product - no results in response:${JSON.stringify(response)}`);
+        toast.error("Update failed - no response data received");
+        throw new Error("Failed to update product - no results in response");
       }
 
       if (response.results) {
@@ -227,7 +233,8 @@ class ProductsService {
         }
       }
       
-      throw new Error("Failed to update product");
+      console.error(`Failed to update product - no successful updates in response:${JSON.stringify(response)}`);
+      throw new Error("Failed to update product - no successful updates in response");
     } catch (error) {
       console.error("Error updating product:", error);
       throw error;
