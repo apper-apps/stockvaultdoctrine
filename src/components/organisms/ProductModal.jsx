@@ -36,7 +36,7 @@ const ProductModal = ({
           sku: product.sku || "",
           quantity: product.quantity?.toString() || "",
           price: product.price?.toString() || "",
-          category: product.category || "",
+category: product.category?.Id?.toString() || "",
           minStock: product.minStock?.toString() || "",
           description: product.description || ""
         });
@@ -96,11 +96,12 @@ const ProductModal = ({
     setIsSubmitting(true);
     
     try {
-      const productData = {
+const productData = {
         ...formData,
         quantity: parseInt(formData.quantity),
         price: parseFloat(formData.price),
-        minStock: parseInt(formData.minStock)
+        minStock: parseInt(formData.minStock),
+        ...(formData.category && { category: parseInt(formData.category) })
       };
       
       if (product) {
@@ -206,7 +207,7 @@ const ProductModal = ({
                 >
                   <option value="">Select category</option>
                   {categories.map(category => (
-                    <option key={category.Id} value={category.name}>
+<option key={category.Id} value={category.Id}>
                       {category.name}
                     </option>
                   ))}
